@@ -6,7 +6,7 @@ use warnings;
 use parent 'Crypt::Passphrase::Encoder';
 
 use Carp 'croak';
-use Crypt::Argon2;
+use Crypt::Argon2 0.009;
 
 my %encoder_for = (
 	argon2i  => \&Crypt::Argon2::argon2i_pass,
