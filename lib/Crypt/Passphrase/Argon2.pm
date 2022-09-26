@@ -92,7 +92,7 @@ The size of the salt. This defaults to 16 bytes, which should be more than enoug
 
 =item * subtype
 
-This choses the argon2 subtype. It defaults to C<argon2id>, and unless you know what you're doing you should probably keep it at that. This may change in any future version (but is unlikely to do so unless C<argon2_id> is cryptographically broken).
+This choses the argon2 subtype. It defaults to C<argon2id>, and unless you know what you're doing you should probably keep it at that. This may change in any future version (but is unlikely to do so unless C<argon2id> is cryptographically broken).
 
 =over 4
 
