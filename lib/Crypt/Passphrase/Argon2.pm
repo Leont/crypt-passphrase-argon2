@@ -49,12 +49,12 @@ sub hash_password {
 	my ($self, $password) = @_;
 	my $salt = $self->random_bytes($self->{salt_size});
 	my $encoder = $encoder_for{ $self->{subtype} };
-	return $encoder->($password, $salt, $self->{time_cost}, $self->{memory_cost}, $self->{parallelism}, $self->{output_size});
+	return $encoder->($password, $salt, @{$self}{qw/time_cost memory_cost parallelism output_size/});
 }
 
 sub needs_rehash {
 	my ($self, $hash) = @_;
-	return Crypt::Argon2::argon2_needs_rehash($hash, $self->{subtype}, $self->{time_cost}, $self->{memory_cost}, $self->{parallelism}, $self->{output_size}, $self->{salt_size});
+	return Crypt::Argon2::argon2_needs_rehash($hash, @{$self}{qw/subtype time_cost memory_cost parallelism output_size salt_size/});
 }
 
 my %matcher_for = (
