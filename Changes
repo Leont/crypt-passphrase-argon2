@@ -1,6 +1,7 @@
 Revision history for Crypt-Passphrase-Argon2
 
 {{$NEXT}}
+          - Add profile argument to constructor
 
 0.003     2021-06-10 21:37:41+02:00 Europe/Amsterdam
           - Improved documentation.
