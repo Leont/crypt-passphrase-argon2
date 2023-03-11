@@ -31,16 +31,16 @@ my %encoder_for = (
 
 sub new {
 	my ($class, %args) = @_;
-	my $subtype     =  $args{subtype}     || 'argon2id';
+	my $subtype     =  $args{subtype}     // 'argon2id';
 	croak "Unknown subtype $subtype" unless $encoder_for{$subtype};
-	my $profile     =  $args{profile}     || 'moderate';
+	my $profile     =  $args{profile}     // 'moderate';
 	croak "Unknown profile $profile" unless $settings_for{$profile};
 	return bless {
-		memory_cost => $args{memory_cost} || $settings_for{$profile}{memory_cost},
-		time_cost   => $args{time_cost}   || $settings_for{$profile}{time_cost},
-		parallelism => $args{parallelism} ||  1,
-		output_size => $args{output_size} || 16,
-		salt_size   => $args{salt_size}   || 16,
+		memory_cost => $args{memory_cost} // $settings_for{$profile}{memory_cost},
+		time_cost   => $args{time_cost}   // $settings_for{$profile}{time_cost},
+		parallelism => $args{parallelism} //  1,
+		output_size => $args{output_size} // 16,
+		salt_size   => $args{salt_size}   // 16,
 		subtype     => $subtype,
 	}, $class;
 }
