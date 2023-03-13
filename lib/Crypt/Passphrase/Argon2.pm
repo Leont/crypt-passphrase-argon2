@@ -75,9 +75,18 @@ sub verify_password {
 
 #ABSTRACT: An Argon2 encoder for Crypt::Passphrase
 
+=head1 SYNOPSIS
+
+ my $passphrase = Crypt::Passphrase->new(
+   encoder => {
+     module  => 'Argon2',
+     profile => 'interactive',
+   },
+ );
+
 =head1 DESCRIPTION
 
-This class implements an Argon2 encoder for Crypt::Passphrase. It is the recommended password encoder as of 2021.
+This class implements an Argon2 encoder for Crypt::Passphrase. It is the recommended password encoder as of 2023.
 
 The default settings are taken from the intermediate profile of libsodium's password hashing. You are highly encouraged to come up with your own settings: Crypt::Argon2 contains a C<argon2-calibrate> tool to assist you in this.
 
