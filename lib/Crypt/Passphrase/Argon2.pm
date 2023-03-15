@@ -6,7 +6,7 @@ use warnings;
 use Crypt::Passphrase 0.010 -encoder;
 
 use Carp 'croak';
-use Crypt::Argon2 0.009;
+use Crypt::Argon2 0.014 'argon2_verify';
 
 my %settings_for = (
 	interactive => {
@@ -57,20 +57,13 @@ sub needs_rehash {
 	return Crypt::Argon2::argon2_needs_rehash($hash, @{$self}{qw/subtype time_cost memory_cost parallelism output_size salt_size/});
 }
 
-my %matcher_for = (
-	argon2i  => \&Crypt::Argon2::argon2i_verify,
-	argon2d  => \&Crypt::Argon2::argon2d_verify,
-	argon2id => \&Crypt::Argon2::argon2id_verify,
-);
-
 sub crypt_subtypes {
-	return keys %matcher_for;
+	return keys %encoder_for;
 }
 
 sub verify_password {
 	my ($class, $password, $hash) = @_;
-	my ($type) = $hash =~ / \A \$ ([0-9A-Za-z]+) \$ /x;
-	return eval { $matcher_for{$type}->($hash, $password) };
+	return argon2_verify($hash, $password);
 }
 
 #ABSTRACT: An Argon2 encoder for Crypt::Passphrase
