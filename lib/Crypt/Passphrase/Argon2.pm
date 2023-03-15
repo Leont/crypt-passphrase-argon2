@@ -23,11 +23,8 @@ my %settings_for = (
 	}
 );
 
-my %encoder_for = (
-	argon2i  => \&Crypt::Argon2::argon2i_pass,
-	argon2d  => \&Crypt::Argon2::argon2d_pass,
-	argon2id => \&Crypt::Argon2::argon2id_pass,
-);
+my @identifiers = qw/argon2i argon2d argon2id/;
+my %encoder_for = map { no strict; $_ => \&{"Crypt::Argon2::$_\_pass"} } @identifiers;
 
 sub new {
 	my ($class, %args) = @_;
@@ -58,7 +55,7 @@ sub needs_rehash {
 }
 
 sub crypt_subtypes {
-	return keys %encoder_for;
+	return @identifiers;
 }
 
 sub verify_password {
