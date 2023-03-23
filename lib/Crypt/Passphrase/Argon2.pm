@@ -24,7 +24,7 @@ my %settings_for = (
 );
 
 my @identifiers = qw/argon2i argon2d argon2id/;
-my %encoder_for = map { no strict; $_ => \&{"Crypt::Argon2::$_\_pass"} } @identifiers;
+my %encoder_for = map {; no strict; $_ => \&{"Crypt::Argon2::$_\_pass"} } @identifiers;
 
 sub new {
 	my ($class, %args) = @_;
