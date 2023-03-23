@@ -6,7 +6,7 @@ use warnings;
 use Crypt::Passphrase 0.010 -encoder;
 
 use Carp 'croak';
-use Crypt::Argon2 0.014 'argon2_verify';
+use Crypt::Argon2 0.014 qw/argon2_needs_rehash argon2_verify/;
 
 my %settings_for = (
 	interactive => {
@@ -51,7 +51,7 @@ sub hash_password {
 
 sub needs_rehash {
 	my ($self, $hash) = @_;
-	return Crypt::Argon2::argon2_needs_rehash($hash, @{$self}{qw/subtype time_cost memory_cost parallelism output_size salt_size/});
+	return argon2_needs_rehash($hash, @{$self}{qw/subtype time_cost memory_cost parallelism output_size salt_size/});
 }
 
 sub crypt_subtypes {
