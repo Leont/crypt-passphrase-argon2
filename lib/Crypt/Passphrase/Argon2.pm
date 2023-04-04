@@ -25,20 +25,25 @@ my %settings_for = (
 
 my %valid_types = map { ($_ => 1) } argon2_types;
 
-sub new {
-	my ($class, %args) = @_;
+sub _settings_for {
+	my %args = @_;
 	my $subtype     =  $args{subtype}     // 'argon2id';
 	croak "Unknown subtype $subtype" unless $valid_types{$subtype};
 	my $profile     =  $args{profile}     // 'moderate';
 	croak "Unknown profile $profile" unless $settings_for{$profile};
-	return bless {
+	return {
 		memory_cost => $args{memory_cost} // $settings_for{$profile}{memory_cost},
 		time_cost   => $args{time_cost}   // $settings_for{$profile}{time_cost},
 		parallelism => $args{parallelism} //  1,
 		output_size => $args{output_size} // 16,
 		salt_size   => $args{salt_size}   // 16,
 		subtype     => $subtype,
-	}, $class;
+	};
+}
+
+sub new {
+	my ($class, %args) = @_;
+	return bless _settings_for(%args), $class;
 }
 
 sub hash_password {
