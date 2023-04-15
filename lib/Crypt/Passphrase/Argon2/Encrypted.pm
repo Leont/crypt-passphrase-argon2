@@ -120,10 +120,10 @@ This hashes the passwords with argon2 according to the specified settings and a 
 
 This returns true if the hash uses a different cipher or subtype, or if any of the parameters is lower that desired by the encoder.
 
-=method crypt_types()
+=method crypt_subtypes()
 
-This class supports at least the following crypt types: C<argon2id>, C<argon2i> and C<argon2d>.
+This class supports at least the following crypt types: C<argon2id-encrypted>, C<argon2i-encrypted> and C<argon2d-encrypted>.
 
 =method verify_password($password, $hash)
 
-This will check if a password matches an argon2 hash.
+This will check if a password matches an encrypted argon2 hash.
