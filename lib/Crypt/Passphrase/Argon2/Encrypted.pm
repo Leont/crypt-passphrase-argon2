@@ -47,7 +47,8 @@ sub _unpack_hash {
 
 my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=(\d+) \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
 sub recrypt_hash {
-	my ($self, $to, $input) = @_;
+	my ($self, $input, $to) = @_;
+	$to //= $self->{active};
 	if (my ($subtype, $alg, $id, $version, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
 		return $input if $id eq $to;
 		my $decrypted = $self->decrypt_hash($alg, $id, $salt, $hash);
@@ -104,9 +105,9 @@ This is a base-class for pre-peppering implementations. You probably want to use
 
 This constructor takes all arguments also taken by L<Crypt::Passphrase::Argon2|Crypt::Passphrase::Argon2>, with the following additions: C<cipher> and C<active>.
 
-=method recrypt_hash($to, $input)
+=method recrypt_hash($input, $to = $active)
 
-This recrypts the hash int C<$input> to the key identified by C<$to>, if it's not already.
+This recrypts the hash in C<$input> to the key identified by C<$to>, if it's not already.
 
 =method hash_password($password)
 
