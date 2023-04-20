@@ -53,13 +53,13 @@ sub recrypt_hash {
 		return $input if $id eq $to and $alg eq $self->{cipher};
 		my $decrypted = $self->decrypt_hash($alg, $id, $salt, $hash);
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $decrypted);
-		return _pack_hash($subtype, $self->{cipher}, $to, $version, $m_cost, $t_cost, $parallel, $salt, $encrypted);
+		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
 	}
 	elsif (($subtype, $version, $m_cost, $t_cost, $parallel, my $encoded_salt, my $encoded_hash) = $input =~ $unencrypted_regex) {
 		my $salt = decode_base64($encoded_salt);
 		my $hash = decode_base64($encoded_hash);
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $hash);
-		return _pack_hash($subtype, $self->{cipher}, $to, $version, $m_cost, $t_cost, $parallel, $salt, $encrypted);
+		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
 	}
 	else {
 		return $input;
