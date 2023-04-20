@@ -59,7 +59,7 @@ sub recrypt_hash {
 		my $salt = decode_base64($encoded_salt);
 		my $hash = decode_base64($encoded_hash);
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $hash);
-		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
+		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost * 1024, $t_cost, $parallel, $salt, $encrypted);
 	}
 	else {
 		return $input;
