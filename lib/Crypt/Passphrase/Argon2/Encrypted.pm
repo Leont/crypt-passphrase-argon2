@@ -7,7 +7,7 @@ use Crypt::Passphrase 0.010 -encoder;
 use Crypt::Passphrase::Argon2;
 
 use Carp 'croak';
-use Crypt::Argon2 0.017 qw/argon2_raw argon2_needs_rehash argon2_types/;
+use Crypt::Argon2 0.017 qw/argon2_raw argon2_types/;
 use MIME::Base64 qw/encode_base64 decode_base64/;
 
 my %multiplier = (
@@ -90,12 +90,12 @@ sub crypt_subtypes {
 
 sub verify_password {
 	my ($self, $password, $pwhash) = @_;
-	my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash) or return 0;
+	my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash) or return !!0;
 
 	my $raw = argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash);
-	my $encrypted = $self->encrypt_hash($alg, $id, $salt, $raw);
+	my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return !!0;
 
-	return $self->secure_compare($encrypted, $hash);
+	return $self->secure_compare($decrypted, $raw);
 }
 
 #ABSTRACT: A base-class for encrypting/peppered Argon2 encoders for Crypt::Passphrase
