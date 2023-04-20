@@ -92,7 +92,7 @@ sub verify_password {
 	my ($self, $password, $pwhash) = @_;
 	my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash) or return !!0;
 
-	my $raw = argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash);
+	my $raw = eval { argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash) } or return !!0;
 	my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return !!0;
 
 	return $self->secure_compare($decrypted, $raw);
