@@ -7,7 +7,7 @@ use Crypt::Passphrase 0.010 -encoder;
 use Crypt::Passphrase::Argon2;
 
 use Carp 'croak';
-use Crypt::Argon2 0.017 qw/argon2_raw argon2_types/;
+use Crypt::Argon2 0.017 qw/argon2_raw argon2_verify argon2_types/;
 use MIME::Base64 qw/encode_base64 decode_base64/;
 
 my %multiplier = (
@@ -85,17 +85,20 @@ sub needs_rehash {
 
 sub crypt_subtypes {
 	my $self = shift;
-	return map { "$_-encrypted" } argon2_types;
+	return map { ("$_-encrypted", $_) } argon2_types;
 }
 
 sub verify_password {
 	my ($self, $password, $pwhash) = @_;
-	my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash) or return !!0;
+	if (my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash)) {
+		my $raw = eval { argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash) } or return !!0;
+		my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return !!0;
 
-	my $raw = eval { argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash) } or return !!0;
-	my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return !!0;
-
-	return $self->secure_compare($decrypted, $raw);
+		return $self->secure_compare($decrypted, $raw);
+	}
+	elsif ($pwhash =~ $unencrypted_regex) {
+		return argon2_verify($pwhash, $password);
+	}
 }
 
 #ABSTRACT: A base-class for encrypting/peppered Argon2 encoders for Crypt::Passphrase
@@ -122,7 +125,7 @@ This returns true if the hash uses a different cipher or subtype, or if any of t
 
 =method crypt_subtypes()
 
-This class supports at least the following crypt types: C<argon2id-encrypted>, C<argon2i-encrypted> and C<argon2d-encrypted>.
+This class supports at all types supported by L<Crypt::Argon2>, with and without a C<'-encrypted'> postfix.
 
 =method verify_password($password, $hash)
 

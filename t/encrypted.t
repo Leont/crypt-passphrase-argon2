@@ -32,8 +32,12 @@ my $hash2 = $passphrase2->recrypt_hash($hash1);
 ok($passphrase2->verify_password($password, $hash2), 'Recrypted password validates');
 ok(!$passphrase2->needs_rehash($hash2), 'Recrypted password doesn\'t need to be regenerated') or diag $hash2;
 
-my $hash3 = $passphrase2->recrypt_hash(argon2id_pass($password, $salt, 2, '64M', 1, 32));
-ok($passphrase2->verify_password($password, $hash3), 'Recrypted raw password validates');
-ok(!$passphrase2->needs_rehash($hash3), 'Recrypted raw password doesn\'t need to be regenerated') or diag $hash3;
+my $hash3 = argon2id_pass($password, $salt, 2, '64M', 1, 32);
+ok($passphrase2->verify_password($password, $hash3), 'Raw password validates');
+ok($passphrase2->needs_rehash($hash3), 'Raw password does need to be regenerated');
+
+my $hash4 = $passphrase2->recrypt_hash($hash3);
+ok($passphrase2->verify_password($password, $hash4), 'Recrypted raw password validates');
+ok(!$passphrase2->needs_rehash($hash4), 'Recrypted raw password doesn\'t need to be regenerated');
 
 done_testing;
