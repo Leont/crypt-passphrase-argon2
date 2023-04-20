@@ -111,22 +111,22 @@ This is a base-class for pre-peppering implementations. You probably want to use
 
 This constructor takes all arguments also taken by L<Crypt::Passphrase::Argon2|Crypt::Passphrase::Argon2>, with the following additions: C<cipher> and C<active>.
 
-=method recrypt_hash($input, $to = $active)
-
-This recrypts the hash in C<$input> to the key identified by C<$to>, if it's not already.
-
 =method hash_password($password)
 
 This hashes the passwords with argon2 according to the specified settings and a random salt (and will thus return a different result each time).
+
+=method verify_password($password, $hash)
+
+This will check if a password matches an encrypted or unencrypted argon2 hash.
 
 =method needs_rehash($hash)
 
 This returns true if the hash uses a different cipher or subtype, or if any of the parameters is lower that desired by the encoder.
 
+=method recrypt_hash($input, $to = $active)
+
+This recrypts the hash in C<$input> to the key identified by C<$to>, if it's not already.
+
 =method crypt_subtypes()
 
 This class supports at all types supported by L<Crypt::Argon2>, with and without a C<'-encrypted'> postfix.
-
-=method verify_password($password, $hash)
-
-This will check if a password matches an encrypted argon2 hash.
