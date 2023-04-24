@@ -109,7 +109,7 @@ This is a base-class for pre-peppering implementations. You probably want to use
 
 =method new()
 
-This constructor takes all arguments also taken by L<Crypt::Passphrase::Argon2|Crypt::Passphrase::Argon2>, with the following additions: C<cipher> and C<active>.
+This constructor takes all arguments also taken by L<Crypt::Passphrase::Argon2|Crypt::Passphrase::Argon2>, with the following additions: C<cipher> (the name of the used cipher) and C<active> (the identifier of the active pepper).
 
 =method hash_password($password)
 
