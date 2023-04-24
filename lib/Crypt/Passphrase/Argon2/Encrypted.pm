@@ -18,7 +18,6 @@ my %multiplier = (
 
 sub new {
 	my ($class, %args) = @_;
-	$args{output_size} //= 32;
 	my $self = bless Crypt::Passphrase::Argon2::_settings_for(%args), $class;
 	$self->{memory_cost} =~ s/ \A (\d+) ([kMG]) \z / $1 * $multiplier{$2} /xe;
 	$self->{cipher} = $args{cipher};
