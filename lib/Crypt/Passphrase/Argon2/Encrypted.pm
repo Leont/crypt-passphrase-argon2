@@ -35,27 +35,27 @@ sub _pack_hash {
 	return sprintf $format, $subtype, $cipher, $id, $m_cost / 1024, $t_cost, $parallel, $encoded_salt, $encoded_hash;
 }
 
-my $regex = qr/ ^ \$ ($Crypt::Argon2::type_regex)-encrypted \$ v=1, cipher=([^\$,]+) , id=([^\$,]+) \$ v=(\d+) \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
+my $regex = qr/ ^ \$ ($Crypt::Argon2::type_regex)-encrypted \$ v=1, cipher=([^\$,]+) , id=([^\$,]+) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
 
 sub _unpack_hash {
 	my ($pwhash) = @_;
-	my ($subtype, $alg, $id, $version, $m_cost, $t_cost, $parallel, $encoded_salt, $encoded_hash) = $pwhash =~ $regex or return;
+	my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $encoded_salt, $encoded_hash) = $pwhash =~ $regex or return;
 	my $salt = decode_base64($encoded_salt);
 	my $hash = decode_base64($encoded_hash);
-	return ($subtype, $alg, $id, $version, $m_cost * 1024, $t_cost, $parallel, $salt, $hash);
+	return ($subtype, $alg, $id, $m_cost * 1024, $t_cost, $parallel, $salt, $hash);
 }
 
-my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=(\d+) \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
+my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
 sub recrypt_hash {
 	my ($self, $input, $to) = @_;
 	$to //= $self->{active};
-	if (my ($subtype, $alg, $id, $version, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
+	if (my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
 		return $input if $id eq $to and $alg eq $self->{cipher};
 		my $decrypted = $self->decrypt_hash($alg, $id, $salt, $hash);
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $decrypted);
 		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
 	}
-	elsif (($subtype, $version, $m_cost, $t_cost, $parallel, my $encoded_salt, my $encoded_hash) = $input =~ $unencrypted_regex) {
+	elsif (($subtype, $m_cost, $t_cost, $parallel, my $encoded_salt, my $encoded_hash) = $input =~ $unencrypted_regex) {
 		my $salt = decode_base64($encoded_salt);
 		my $hash = decode_base64($encoded_hash);
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $hash);
@@ -78,7 +78,7 @@ sub hash_password {
 
 sub needs_rehash {
 	my ($self, $pwhash) = @_;
-	my ($subtype, $alg, $id, $version, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($pwhash) or return 1;
+	my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($pwhash) or return 1;
 	return 1 if $pwhash ne _pack_hash(@{$self}{qw/subtype cipher active memory_cost time_cost parallelism/}, $salt, $hash);
 	return length $salt != $self->{salt_size} || length $hash != $self->{output_size};
 }
@@ -90,7 +90,7 @@ sub crypt_subtypes {
 
 sub verify_password {
 	my ($self, $password, $pwhash) = @_;
-	if (my ($subtype, $alg, $id, $version, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash)) {
+	if (my ($subtype, $alg, $id, $m_got, $t_got, $parallel_got, $salt, $hash) = _unpack_hash($pwhash)) {
 		my $raw = eval { argon2_raw($subtype, $password, $salt, $t_got, $m_got, $parallel_got, length $hash) } or return !!0;
 		my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return !!0;
 
