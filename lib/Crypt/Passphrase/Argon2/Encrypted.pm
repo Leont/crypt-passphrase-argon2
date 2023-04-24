@@ -46,7 +46,7 @@ sub _unpack_hash {
 }
 
 my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
-sub recrypt_hash {
+sub recode_hash {
 	my ($self, $input, $to) = @_;
 	$to //= $self->{active};
 	if (my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
@@ -123,7 +123,7 @@ This will check if a password matches an encrypted or unencrypted argon2 hash.
 
 This returns true if the hash uses a different cipher or subtype, or if any of the parameters is lower that desired by the encoder.
 
-=method recrypt_hash($input, $to = $active)
+=method recode_hash($input, $to = $active)
 
 This recrypts the hash in C<$input> to the key identified by C<$to>, if it's not already.
 

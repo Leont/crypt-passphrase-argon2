@@ -1,6 +1,7 @@
 Revision history for Crypt-Passphrase-Argon2
 
 {{$NEXT}}
+          - Rename recrypt_hash to recode_hash
 
 0.008     2023-04-20 17:04:51+02:00 Europe/Amsterdam
           - Reorder recrypt_hash arguments
