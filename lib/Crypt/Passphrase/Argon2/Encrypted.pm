@@ -25,20 +25,20 @@ sub new {
 	return $self;
 }
 
-my $format = '$%s-encrypted$v=1,cipher=%s,id=%s$v=19$m=%d,t=%d,p=%d$%s$%s';
+my $format = '$%s-encrypted-%s$v=19$m=%d,t=%d,p=%d,keyid=%s$%s$%s';
 
 sub _pack_hash {
 	my ($subtype, $cipher, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = @_;
 	my $encoded_salt = encode_base64($salt, '') =~ tr/=//dr;
 	my $encoded_hash = encode_base64($hash, '') =~ tr/=//dr;
-	return sprintf $format, $subtype, $cipher, $id, $m_cost / 1024, $t_cost, $parallel, $encoded_salt, $encoded_hash;
+	return sprintf $format, $subtype, $cipher, $m_cost / 1024, $t_cost, $parallel, $id, $encoded_salt, $encoded_hash;
 }
 
-my $regex = qr/ ^ \$ ($Crypt::Argon2::type_regex)-encrypted \$ v=1, cipher=([^\$,]+) , id=([^\$,]+) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
+my $regex = qr/ ^ \$ ($Crypt::Argon2::type_regex)-encrypted-([^\$]+) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+), keyid=([^\$,]+)  \$ ([^\$]+) \$ (.*) $ /x;
 
 sub _unpack_hash {
 	my ($pwhash) = @_;
-	my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $encoded_salt, $encoded_hash) = $pwhash =~ $regex or return;
+	my ($subtype, $alg, $m_cost, $t_cost, $parallel, $id, $encoded_salt, $encoded_hash) = $pwhash =~ $regex or return;
 	my $salt = decode_base64($encoded_salt);
 	my $hash = decode_base64($encoded_hash);
 	return ($subtype, $alg, $id, $m_cost * 1024, $t_cost, $parallel, $salt, $hash);
@@ -84,7 +84,12 @@ sub needs_rehash {
 
 sub crypt_subtypes {
 	my $self = shift;
-	return map { ("$_-encrypted", $_) } argon2_types;
+	my @result;
+	my @supported = $self->supported_ciphers;
+	for my $argon2 (argon2_types) {
+		push @result, $argon2, map { "$argon2-encrypted-$_" } @supported
+	}
+	return @result;
 }
 
 sub verify_password {
