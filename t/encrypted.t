@@ -40,4 +40,7 @@ my $hash4 = $passphrase2->recode_hash($hash3);
 ok($passphrase2->verify_password($password, $hash4), 'Recrypted raw password validates');
 ok(!$passphrase2->needs_rehash($hash4), 'Recrypted raw password doesn\'t need to be regenerated');
 
+ok($passphrase->verify_password($password,  q{$argon2id-encrypted-rot$v=19$m=65536,t=2,p=1,keyid=12$HpZube78dicpgXa/8TTKxA$0FWMWuh0quC6d7gKD2mY0XMOkwuhq8reGkE8X1IxH/s}), 'Valid id succeeds');
+ok(!$passphrase->verify_password($password, q{$argon2id-encrypted-rot$v=19$m=65536,t=2,p=1,keyid=21$HpZube78dicpgXa/8TTKxA$0FWMWuh0quC6d7gKD2mY0XMOkwuhq8reGkE8X1IxH/s}), 'Invalid id fails');
+
 done_testing;
