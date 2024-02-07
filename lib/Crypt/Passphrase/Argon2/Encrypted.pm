@@ -50,7 +50,7 @@ sub recode_hash {
 	$to //= $self->{active};
 	if (my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
 		return $input if $id eq $to and $alg eq $self->{cipher};
-		my $decrypted = $self->decrypt_hash($alg, $id, $salt, $hash);
+		my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return $input;
 		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $decrypted);
 		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
 	}
