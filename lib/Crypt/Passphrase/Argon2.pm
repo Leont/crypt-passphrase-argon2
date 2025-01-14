@@ -3,7 +3,7 @@ package Crypt::Passphrase::Argon2;
 use strict;
 use warnings;
 
-use Crypt::Passphrase 0.010 -encoder;
+use parent 'Crypt::Passphrase::Encoder';
 
 use Carp 'croak';
 use Crypt::Argon2 0.017 qw/argon2_pass argon2_needs_rehash argon2_verify argon2_types/;
