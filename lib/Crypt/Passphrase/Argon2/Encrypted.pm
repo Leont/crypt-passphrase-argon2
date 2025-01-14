@@ -46,20 +46,19 @@ sub _unpack_hash {
 
 my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=19 \$ m=(\d+), t=(\d+), p=(\d+) \$ ([^\$]+) \$ (.*) $ /x;
 sub recode_hash {
-	my ($self, $input, $to) = @_;
-	$to //= $self->{active};
+	my ($self, $input) = @_;
 	local $SIG{__DIE__} = \&Carp::croak;
 	if (my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
-		return $input if $id eq $to and $alg eq $self->{cipher};
+		return $input if $id eq $self->{active} and $alg eq $self->{cipher};
 		my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return $input;
-		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $decrypted);
-		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost, $t_cost, $parallel, $salt, $encrypted);
+		my $encrypted = $self->encrypt_hash($self->{cipher}, $self->{active}, $salt, $decrypted);
+		return _pack_hash($subtype, $self->{cipher}, $self->{active}, $m_cost, $t_cost, $parallel, $salt, $encrypted);
 	}
 	elsif (($subtype, $m_cost, $t_cost, $parallel, my $encoded_salt, my $encoded_hash) = $input =~ $unencrypted_regex) {
 		my $salt = decode_base64($encoded_salt);
 		my $hash = decode_base64($encoded_hash);
-		my $encrypted = $self->encrypt_hash($self->{cipher}, $to, $salt, $hash);
-		return _pack_hash($subtype, $self->{cipher}, $to, $m_cost * 1024, $t_cost, $parallel, $salt, $encrypted);
+		my $encrypted = $self->encrypt_hash($self->{cipher}, $self->{active}, $salt, $hash);
+		return _pack_hash($subtype, $self->{cipher}, $self->{active}, $m_cost * 1024, $t_cost, $parallel, $salt, $encrypted);
 	}
 	else {
 		return $input;
@@ -129,9 +128,9 @@ This will check if a password matches an encrypted or unencrypted argon2 hash.
 
 This returns true if the hash uses a different cipher or subtype, or if any of the parameters is lower that desired by the encoder.
 
-=method recode_hash($input, $to = $active)
+=method recode_hash($input)
 
-This recrypts the hash in C<$input> to the key identified by C<$to>, if it's not already.
+This recrypts the hash in C<$input> to the active key, if it's not already.
 
 =method crypt_subtypes()
 

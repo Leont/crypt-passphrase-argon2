@@ -1,6 +1,7 @@
 Revision history for Crypt-Passphrase-Argon2
 
 {{$NEXT}}
+          - Eliminate $to argument to recode_hash
           - Tolerate decrypt failures in recode_hash
 
 0.009     2023-05-04 15:24:08+02:00 Europe/Amsterdam
