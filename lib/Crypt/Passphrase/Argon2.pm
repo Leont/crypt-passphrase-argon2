@@ -49,6 +49,7 @@ sub new {
 sub hash_password {
 	my ($self, $password) = @_;
 	my $salt = $self->random_bytes($self->{salt_size});
+	local $SIG{__DIE__} = \&Carp::croak;
 	return argon2_pass($self->{subtype}, $password, $salt, @{$self}{qw/time_cost memory_cost parallelism output_size/});
 }
 

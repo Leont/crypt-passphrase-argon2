@@ -48,6 +48,7 @@ my $unencrypted_regex = qr/ ^ \$ ($Crypt::Argon2::type_regex) \$ v=19 \$ m=(\d+)
 sub recode_hash {
 	my ($self, $input, $to) = @_;
 	$to //= $self->{active};
+	local $SIG{__DIE__} = \&Carp::croak;
 	if (my ($subtype, $alg, $id, $m_cost, $t_cost, $parallel, $salt, $hash) = _unpack_hash($input)) {
 		return $input if $id eq $to and $alg eq $self->{cipher};
 		my $decrypted = eval { $self->decrypt_hash($alg, $id, $salt, $hash) } or return $input;
@@ -69,6 +70,7 @@ sub hash_password {
 	my ($self, $password) = @_;
 
 	my $salt = $self->random_bytes($self->{salt_size});
+	local $SIG{__DIE__} = \&Carp::croak;
 	my $raw = argon2_raw($self->{subtype}, $password, $salt, @{$self}{qw/time_cost memory_cost parallelism output_size/});
 	my $encrypted = $self->encrypt_hash($self->{cipher}, $self->{active}, $salt, $raw);
 
